@@ -1,24 +1,25 @@
 package automationreport;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import org.openqa.selenium.*;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.server.handler.WebElementHandler;
-import org.openqa.selenium.support.ui.Select;
-
-
 public class Driver {
 
 	public static void main(String[] args)  throws Exception{
 	
-    AutomationScripts.SFDCLogin();
-    
-//    AutomationScripts.validateErrorMessage();
-
+		/*AutomationScripts.xeroLogin(30,32);
+		AutomationScripts.xeroLogin(35,37);
+		AutomationScripts.xeroLogin(40,42);*/
+		//AutomationScripts.xeroLogin(45,47);
+		//AutomationScripts.xeroLogin(50,58);
+		AutomationScripts.xeroLogin(61,64);
+		
+	   //AutomationScripts.SFDCLogin(2,4);
+	    //AutomationScripts.SFDCLogin(6,8);
+	 //  AutomationScripts.SFDCLogin(11,16);
+	 //  AutomationScripts.SFDCLogin(19,21);
+	//   AutomationScripts.SFDCLogin(24,27);
+	   
+		
+	   
+	   
 	}
 
 }

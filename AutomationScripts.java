@@ -1,42 +1,22 @@
 package automationreport;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.junit.Test;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.server.handler.WebElementHandler;
-import org.openqa.selenium.support.ui.Select;
 
 public class AutomationScripts extends ReusableMethods {
 	private static WebDriver driver;
 	
-	
-
-	public static void SFDCLogin() throws Exception {
+	public static void SFDCLogin(int row,int end) throws Exception {
 		
           /* Launch a Browser*/
 		 System.setProperty("webdriver.gecko.driver", "/Users/peter/Downloads/Seleniumtestcases/geckodriver");
 		 driver = new FirefoxDriver();
-		    
-		  /*  Launch URL*/
-		 driver.get("https://login.salesforce.com");
+		 /*  Launch URL*/
+		    driver.get("https://login.salesforce.com");
+		    //driver.manage().timeouts().implicitlyWait(2000, TimeUnit.SECONDS); 
+		 
 			startReport("Decending","/Users/Peter/TestReport/");
 
 		 /* WebElement userName1 = driver.findElement(By.xpath(".//*[@id='username']"));
@@ -52,39 +32,109 @@ public class AutomationScripts extends ReusableMethods {
 	 		String dt_path = "/Users/peter/Downloads/logino3.xlsx";
 
 			 String[][]  recData = readXLSheet(dt_path, "Sheet1");
-	 
-			   By  locator = null;
+			
+				 
+		
+			//   By  locator = null;
 			    WebElement wl = null;
 
-	        for(int i=2;i<=4;i++){  
+	        for(int i=row;i<=end;i++){  
 	  
 	            
 	            if (recData[i][1].toString().equals("xpath") ){
-	    		  //  locator = By.xpath(recData[i][2].toString());
-	    		      wl =  driver.findElement(By.xpath(recData[i][2].toString()));
+ 	    		      wl =  driver.findElement(By.xpath(recData[i][2].toString()));
 
 
 	            }else  if (recData[i][1].equals("name")){
 	    		    wl = driver.findElement(By.name(recData[i][2].toString()));
 	            }
-	            
 	            if (recData[i][3].toString().equals("sendKeys")){
- 	            	//driver.findElement(locator).sendKeys(recData[i][4].toString());
-	    		    enterText(wl,  recData[i][3].toString(), recData[i][4].toString());
+ 	    		    enterText(wl,  recData[i][4].toString(), recData[i][4].toString());
 
 	            }else  if (recData[i][3].toString().equals("click")){
-	            //	driver.findElement(locator).click();
-	            	 clickButton(driver,wl, "Log In ");
+ 	            	 clickButton(driver,wl, "Log In ");
 
+	            }else  if (recData[i][3].toString().equals("clickAndWait")){
+	            	 clickWaitButton(driver,wl, "Logout ");
+	            	 
 	            }
-	            
 	        }
-		    
+			  
 		    bw.close();
-
+    driver.quit();
 	}
-
+//Assert.assertEquals(actual_msg, expect);
 	
+	public static void xeroLogin(int row,int end) throws Exception {
+		
+        /* Launch a Browser*/
+		 System.setProperty("webdriver.gecko.driver", "/Users/peter/Downloads/Seleniumtestcases/geckodriver");
+		 driver = new FirefoxDriver();
+		 /*  Launch URL*/
+		 //   driver.manage().timeouts().implicitlyWait(2000, TimeUnit.SECONDS); 
+		 
+			startReport("Decending","/Users/Peter/TestReport/");
+			
+	 		String dt_path = "/Users/peter/Downloads/logino3.xlsx";
+
+			 String[][]  recData = readXLSheet(dt_path, "Sheet1");
+
+				 
+		
+			//   By  locator = null;
+			    WebElement wl = null;
+			    try{
+			    driver.get(recData[row - 1][4].toString());
+				Update_Report("Pass "  +"  ",recData[row - 1][4].toString()," able to open website");
+
+			    }catch (Exception e){
+					Update_Report("Fail "  +"  ",recData[row - 1][4].toString()," not able to open website");
+
+			    }
+
+	        for(int i=row;i<=end;i++){  
+
+	            if (recData[i][1].toString().equals("xpath") ){
+	            	
+	                try{
+	                	 wl =  driver.findElement(By.xpath(recData[i][2].toString()));
+	                	 
+	                	 Update_Report("Pass "  +"  ",recData[i][2].toString()," able to find  element");
+
+	    			    }catch (Exception e){
+		                	 Update_Report("Fail "  +"  ",recData[i][2].toString()," not able to find  element, terminating the test");
+                            e.printStackTrace();
+                            break;
+	    			    }  
+
+
+	            }else  if (recData[i][1].equals("name")){
+	    		    wl = driver.findElement(By.name(recData[i][2].toString()));
+	            }else  if (recData[i][1].equals("linkText")){
+	    		    wl = driver.findElement(By.xpath(recData[i][2].toString()));
+	            }
+	            if (recData[i][3].toString().equals("sendKeys")){
+	    		    enterText(wl,  recData[i][4].toString(), recData[i][4].toString());
+
+	            }else  if (recData[i][3].toString().equals("click")){
+	            	try{
+	            	 clickButton(driver,wl, "Click ");
+	            	 }catch (Exception e){
+	                	 Update_Report("Fail "  +"  ",recData[i][2].toString()," not able to find  element, terminating the test");
+                        e.printStackTrace();
+                        break;
+    			    }  
+
+	            }else  if (recData[i][3].toString().equals("clickAndWait")){
+	            	 clickWaitButton(driver,wl, "Logout ");
+	            	 
+	            }
+	        }
+			 
+			 
+		    bw.close();
+        driver.quit();
+	}
 	
 	public  static void validateErrorMessage(){
 		

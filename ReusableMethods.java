@@ -10,13 +10,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 public class ReusableMethods {
-//	static WebDriver driver;
+
 	static BufferedWriter bw = null;
 	static BufferedWriter bw1 = null;
 	static String htmlname;
@@ -28,22 +30,8 @@ public class ReusableMethods {
 
 
 	static Date cur_dt = null;
-	static String filenamer;
-	static String TestReport;
-	int rowcnt;
 	static String exeStatus = "True";
-	static int iflag = 0;
 	static int j = 1;
-
-	static String fireFoxBrowser;
-	static String chromeBrowser;
-
-	static String result;
-
-	static int intRowCount = 0;
-	static String dataTablePath;
-	static int i;
-	static String browserName;
 
 	
 	public static void enterText(WebElement obj, String textVal,String objName) throws IOException{
@@ -56,27 +44,47 @@ public class ReusableMethods {
 			
 		}else{
 			Update_Report("Pass: "+"  "  , textVal, objName+ "  "+ "field is not displayed,please check your application"+".");
-			System.out.println("Fail: "  + "  " +objName +"  "+ "field is not displayed,please check your application");
+			//System.out.println("Fail: "  + "  " +objName +"  "+ "field is not displayed,please check your application");
 		}
 	}
-	//enterText
+	
 	
 	public static void clickButton(WebDriver driver,WebElement obj, String textVal) throws IOException{
-
 		if(obj.isDisplayed()){
-			obj.click();
 			try {
-			String errMsg =  driver.findElement(By.xpath(".//*[@id='error']")).getText();
+				obj.click();
+
+			driver.findElement(By.xpath(".//*[@id='error']")).getText();
  
-			Update_Report("Fail"+"  ", textVal," Login clicked" );
+			Update_Report("Pass"+"  ", textVal," Login clicked" );
 			}catch (Exception e){
-			Update_Report("Pass "  +"  ",textVal," Login clicked");
+				
+			  throw e ;
 		}
 		}
 		
-	
 }
 
+	
+	public static void clickWaitButton(WebDriver driver,WebElement obj, String textVal) throws IOException{
+
+		if(obj.isDisplayed()){
+			obj.click();
+			
+			try {
+			
+			driver.findElement(By.xpath(".//a[contains(text(),'Logout')]"));
+			Update_Report("Pass "  +"  ",textVal," clicked");
+			
+			}catch (Exception e){
+			Update_Report("Fail"+"  ", textVal," clicked" );	
+			
+		}
+		}
+		
+}
+	
+	
 	
 	public static void startReport(String scriptName, String ReportsPath) throws IOException{
 
@@ -175,10 +183,6 @@ public class ReusableMethods {
 			//Step 4: Access the sheet
 			XSSFSheet sheet = wb.getSheet(sheetName);
 			
-			//String data = sheet.getRow(0).getCell(1).getStringCellValue();
-			
-			//System.out.println(data);
-			
 			int iRowCount = sheet.getLastRowNum()+1;
 			int iColCount = sheet.getRow(0).getLastCellNum();
 			
@@ -187,15 +191,14 @@ public class ReusableMethods {
 			for(int i=0;i< iRowCount; i++){
 				for(int j=0; j< iColCount; j++){
 					
-			 
-					xlData[i][j] = sheet.getRow(i).getCell(j).toString();
-				/*	try{
-					System.out.print(sheet.getRow(i).getCell(j).getStringCellValue()+ " ");
-					}catch(Exception e){
-						
-					}*/
+					 System.out.println(i);
+					 System.out.println(j);
+					 xlData[i][j]  = sheet.getRow(i).getCell(j).toString();
+					 System.out.println(xlData[i][j] );
+
+ 				
 				}
-				//System.out.println();
+			
 				
 			}
 			return xlData;
