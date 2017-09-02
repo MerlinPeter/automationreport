@@ -11,15 +11,18 @@ import java.util.Date;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 
-public class ReusableMethods {
-
-	static BufferedWriter bw = null;
+public class ReusableMethods  extends Driver{
+ 	static BufferedWriter bw = null;
 	static BufferedWriter bw1 = null;
 	static String htmlname;
 	static String objType;
@@ -35,58 +38,60 @@ public class ReusableMethods {
 
 	
 	public static void enterText(WebElement obj, String textVal,String objName) throws IOException{
+	
 		if(obj.isDisplayed()){
 			obj.sendKeys(textVal);
-		//	System.out.println("Pass: "+"  " +textVal+ "  " +"is entered in" +objName + "." );
-			Update_Report(	"Pass: "+"  "  , 
-										textVal,  
-										objName+ ".");
+		
+			Update_Report(	"Pass: ", "enterText", textVal +"is entered in " +   objName+ "field", driver);
 			
 		}else{
-			Update_Report("Pass: "+"  "  , textVal, objName+ "  "+ "field is not displayed,please check your application"+".");
-			//System.out.println("Fail: "  + "  " +objName +"  "+ "field is not displayed,please check your application");
+			Update_Report("Fail:  "  ,  objName  + "  "+ "field is not displayed,please check your application"+"." , textVal,driver);
+
 		}
 	}
 	
+
+	public static void checkError(WebElement obj, String errorVal) throws IOException{
+		//String storeVal = obj.getText();
+		WebElement errorMsg = driver.findElement(By.id("error"));
+		String expectedErrorMsg = " Please error out ";
+		String actualErrorMsg = errorMsg.getText().trim();
+		
+		if(expectedErrorMsg.equals(actualErrorMsg)){
+			Update_Report("Pass", "Sample ", "Error message mathced", driver);
+		}else{
+			Update_Report("Fail", "Validate Error message", " Expected error message is not matching with actual error meesage", driver);
+		}
+		
+	/*	if(storeVal.equals("Please enter your password."))
+		{
+			Update_Report("Pass:  "  ,  objName  + "  "+ "field is not displayed,please check your application." ,storeVal, driver);
+		 
+		}	*/
+		
+	}
 	
-	public static void clickButton(WebDriver driver,WebElement obj, String textVal) throws IOException{
+	
+	
+	public static void clickButton(WebElement obj, String textVal,String time) throws Exception{
 		if(obj.isDisplayed()){
 			try {
 				obj.click();
-
-			driver.findElement(By.xpath(".//*[@id='error']")).getText();
- 
-			Update_Report("Pass"+"  ", textVal," Login clicked" );
+                   
+				if(time != null && !time.isEmpty()){
+				long threadTime = Long.parseLong(time);
+				Thread.sleep(threadTime);
+				}    
 			}catch (Exception e){
-				
+ 
 			  throw e ;
 		}
 		}
 		
 }
-
 	
-	public static void clickWaitButton(WebDriver driver,WebElement obj, String textVal) throws IOException{
-
-		if(obj.isDisplayed()){
-			obj.click();
-			
-			try {
-			
-			driver.findElement(By.xpath(".//a[contains(text(),'Logout')]"));
-			Update_Report("Pass "  +"  ",textVal," clicked");
-			
-			}catch (Exception e){
-			Update_Report("Fail"+"  ", textVal," clicked" );	
-			
-		}
-		}
 		
-}
-	
-	
-	
-	public static void startReport(String scriptName, String ReportsPath) throws IOException{
+	public static String startReport(String scriptName, String ReportsPath) throws IOException{
 
 		String strResultPath = null;
 
@@ -98,16 +103,12 @@ public class ReusableMethods {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		String strTimeStamp = dateFormat.format(cur_dt);
 
-		if (ReportsPath == "") { 
-
-			ReportsPath = "C:\\";
-		}
-
+	 
 		if (ReportsPath.endsWith("\\")) { 
 			ReportsPath = ReportsPath + "\\";
 		}
 
-		strResultPath = ReportsPath + "Log" + "/" +testScriptName +"/"; 
+		strResultPath = ReportsPath  + "/" +testScriptName +"/"; 
 		File f = new File(strResultPath);
 		f.mkdirs();
 		htmlname = strResultPath  + testScriptName + "_" + strTimeStamp 
@@ -128,15 +129,16 @@ public class ReusableMethods {
 				+ "<TD BGCOLOR=#BDBDBD WIDTH=10%><FONT FACE=VERDANA COLOR=BLACK SIZE=2><B>Status</B></FONT></TD>"
 				+ "<TD BGCOLOR=#BDBDBD WIDTH=47%><FONT FACE=VERDANA COLOR=BLACK SIZE=2><B>Detail Report</B></FONT></TD></TR>");
 
-
+  return htmlname ;
 	}
 
-	public static void Update_Report(String Res_type,String Action, String result) throws IOException {
+	public static void Update_Report(String Res_type,String Action, String result, WebDriver dr) throws IOException {
 		String str_time;
 		Date exec_time = new Date();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		str_time = dateFormat.format(exec_time);
 		if (Res_type.startsWith("Pass")) {
+			
 			bw.write("<TR COLS=7><TD BGCOLOR=#EEEEEE WIDTH=3%><FONT FACE=VERDANA SIZE=2>"
 					+ (j++)
 					+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=10%><FONT FACE=VERDANA SIZE=2>"
@@ -146,9 +148,11 @@ public class ReusableMethods {
 					+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=10%><FONT FACE=VERDANA SIZE=2 COLOR = GREEN>"
 					+ "Passed"
 					+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=30%><FONT FACE=VERDANA SIZE=2 COLOR = GREEN>"
-					+ result + "</FONT></TD></TR>");
+					+ " " + "</FONT></TD></TR>");
 
 		} else if (Res_type.startsWith("Fail")) {
+			
+			String ss1Path = screenshot(dr);
 			exeStatus = "Failed";
 			report = 1;
 			bw.write("<TR COLS=7><TD BGCOLOR=#EEEEEE WIDTH=3%><FONT FACE=VERDANA SIZE=2>"
@@ -158,15 +162,30 @@ public class ReusableMethods {
 					+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=10%><FONT FACE=VERDANA SIZE=2>"
 					+ str_time
 					+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=10%><FONT FACE=VERDANA SIZE=2 COLOR = RED>"
-					+ "<a href= "
-					+ htmlname
+					+ "<a href= "+
+					ss1Path
 					+ "  style=\"color: #FF0000\"> Failed </a>"
 
 				+ "</FONT></TD><TD BGCOLOR=#EEEEEE WIDTH=30%><FONT FACE=VERDANA SIZE=2 COLOR = RED>"
-				+ result + "</FONT></TD></TR>");
+				+ dr + "</FONT></TD></TR>");
 
 		} 
 	}
+	
+	
+public static String screenshot(WebDriver dr) throws IOException{
+		
+		Date exec_time = new Date();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		String str_time = dateFormat.format(exec_time);
+		
+		String  ss1Path = "/Users/peter/ReportLogs/SFDCLogin/"+ str_time+".png";
+		File scrFile = ((TakesScreenshot)dr).getScreenshotAs(OutputType.FILE);
+		FileUtils.copyFile(scrFile, new File(ss1Path));
+		return ss1Path;
+	}
+	
+	
 
 	 public static String[][] readXLSheet (String dt_path,String sheetName) throws IOException{
 			
@@ -190,12 +209,9 @@ public class ReusableMethods {
 			
 			for(int i=0;i< iRowCount; i++){
 				for(int j=0; j< iColCount; j++){
-					
-					 System.out.println(i);
-					 System.out.println(j);
+					 
 					 xlData[i][j]  = sheet.getRow(i).getCell(j).toString();
-					 System.out.println(xlData[i][j] );
-
+					
  				
 				}
 			
